@@ -1,0 +1,56 @@
+# Этот docker-compose файл предназначен для разработки и включает в себя
+# удобные для локальной работы настройки, такие как монтирование исходных кодов. 
+# Однако, для продакшн-среды он не подходит из-за
+# отсутствия оптимизации производительности и рисков безопасности.
+
+services:
+
+  redis:
+    container_name: base_project_redis
+    restart: always
+    image: redis:latest
+    # ports:
+    #   - 6379:6379
+    volumes:
+      - ./.docker/volumes/redis_data:/data
+    healthcheck:
+      test: [ "CMD-SHELL", "redis-cli ping | grep PONG" ]
+      interval: 1s
+      timeout: 3s
+      retries: 5
+
+  db:
+    container_name: base_project_db
+    image: postgres
+    restart: always
+    env_file: .env
+    ports:
+      - 5433:5432
+    volumes:
+      - ./.docker/volumes/db:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    container_name: base_project_backend
+    build: .
+    image: base_project_backend
+    env_file: .env
+    command: bash -c "alembic upgrade head && python src/main.py"
+    ports:
+      - 8000:8000
+    volumes:
+      # Монтируются локальные директории в контейнер для синхронизации файлов и упрощения разработки
+      - ./alembic:/app/alembic # Монтируем локальную папку с миграциями в контейнер
+      - ./.docker/volumes/logs:/app/logs # Монтируем папку для логов
+      - ./src:/app/src # Монтируем исходный код приложения для изменения в реальном времени
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: always
+
+volumes:
+  redis_data:

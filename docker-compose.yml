@@ -1,0 +1,44 @@
+services:
+
+  redis:
+    container_name: base_project_redis
+    restart: always
+    image: redis:latest
+    volumes:
+      - ./.docker/volumes/redis_data:/data
+    healthcheck:
+      test: [ "CMD-SHELL", "redis-cli ping | grep PONG" ]
+      interval: 1s
+      timeout: 3s
+      retries: 5
+
+  db:
+    container_name: base_project_db
+    image: postgres
+    restart: always
+    env_file: .env
+    volumes:
+      - ./.docker/volumes/db:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    container_name: base_project_backend
+    build: .
+    image: base_project_backend
+    env_file: .env
+    volumes:
+      - ./.docker/volumes/logs:/app/logs
+    command: bash -c "alembic upgrade head && python src/main.py"
+    ports:
+      - 8000:8000
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: always
+
+volumes:
+  redis_data:

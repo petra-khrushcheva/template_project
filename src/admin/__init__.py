@@ -1,1 +1,1 @@
-from admin.admin_config import admin  # noqa
+from admin.admin_config import configure_admin  # noqa

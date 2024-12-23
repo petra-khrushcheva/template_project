@@ -1,8 +1,19 @@
 import pathlib
 from typing import List
 
-from pydantic import Field, SecretStr
+from pydantic import BaseModel, Field, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+
+class DatabaseConfig(BaseModel):
+    database_url: str
+    db_echo: bool
+
+
+class RedisConfig(BaseModel):
+    redis_host: str
+    redis_port: int
+    redis_db: int
 
 
 class Settings(BaseSettings):
@@ -40,7 +51,7 @@ class Settings(BaseSettings):
     project_version: str = "0.0.0"
 
     @property
-    def database_url(self):
+    def database_url(self) -> str:
         return (
             f"postgresql+asyncpg://{self.postgres_user}:"
             f"{self.postgres_password}@{self.postgres_host}:"
@@ -48,8 +59,25 @@ class Settings(BaseSettings):
         )
 
     @property
-    def base_url(self):
+    def base_url(self) -> str:
         return f"{self.api_url}/api"
+
+    @property
+    def redis_config(self) -> RedisConfig:
+        """Возвращает объект конфигурации Redis."""
+        return RedisConfig(
+            redis_host=self.redis_host,
+            redis_port=self.redis_port,
+            redis_db=self.redis_db,
+        )
+
+    @property
+    def database_config(self) -> DatabaseConfig:
+        """Возвращает объект конфигурации базы данных."""
+        return DatabaseConfig(
+            database_url=self.database_url,
+            db_echo=self.db_echo,
+        )
 
 
 settings = Settings()

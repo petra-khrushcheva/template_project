@@ -1,13 +1,14 @@
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
+from sqlalchemy.ext.asyncio.engine import AsyncEngine
 
-from config import settings
+from config import DatabaseConfig
 
-engine = create_async_engine(
-    url=settings.database_url,
-    echo=settings.db_echo,
-    pool_size=10,
-    max_overflow=20,
-    pool_timeout=30,
-)
 
-async_session = async_sessionmaker(bind=engine)
+def configure_db_session(
+    config: DatabaseConfig,
+) -> tuple[AsyncEngine, async_sessionmaker]:
+    """Конфигурирует и возвращает движок базы данных и фабрику сессий."""
+    engine = create_async_engine(config.database_url, echo=config.db_echo)
+
+    session = async_sessionmaker(bind=engine)
+    return engine, session

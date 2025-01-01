@@ -3,12 +3,14 @@ from starlette.responses import Response
 from starlette_admin.auth import AdminConfig, AdminUser, AuthProvider
 from starlette_admin.exceptions import LoginFailed
 
-from database.db_config import async_session
 from services import admin_service
 from utils import verify_password
 
 
 class UsernameAndPasswordProvider(AuthProvider):
+    def __init__(self, async_session):
+        super().__init__()
+        self.async_session = async_session
 
     async def login(
         self,
@@ -18,7 +20,7 @@ class UsernameAndPasswordProvider(AuthProvider):
         request: Request,
         response: Response,
     ) -> Response:
-        async with async_session() as session:
+        async with self.async_session() as session:
             admin = await admin_service.get(session=session, username=username)
             if not admin:
                 raise LoginFailed("Invalid username or password")
@@ -36,7 +38,7 @@ class UsernameAndPasswordProvider(AuthProvider):
             Save current `user` object in the request state. Can be used later
             to restrict access to connected user.
             """
-            async with async_session() as session:
+            async with self.async_session() as session:
                 request.state.user = await admin_service.get(
                     session=session, username=request.session.get("username")
                 )

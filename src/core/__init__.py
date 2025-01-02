@@ -1,3 +1,3 @@
 # flake8: noqa
 
-from core.base_module import BaseModule
+from core.base_module import BaseModuleManager

@@ -1,9 +1,9 @@
 from abc import ABC, abstractmethod
 
 
-class BaseModule(ABC):
+class BaseModuleManager(ABC):
     @abstractmethod
-    def configure(self):
+    async def configure(self):
         """Настройка модуля."""
         pass
 

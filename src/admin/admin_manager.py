@@ -7,13 +7,13 @@ from starlette_admin.contrib.sqla import Admin, ModelView
 from admin.auth import UsernameAndPasswordProvider
 from admin.views import PKModelView
 from config import AdminConfig
-from core import BaseModule
+from core import BaseModuleManager
 
 # from database.models import Admin as AdminModel
 from database.models import Item, User
 
 
-class AdminModule(BaseModule):
+class AdminManager(BaseModuleManager):
     def __init__(
         self,
         engine: AsyncEngine,

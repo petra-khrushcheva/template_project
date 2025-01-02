@@ -1,1 +1,1 @@
-from admin.admin_manager import AdminManager  # noqa
+from admin.admin_module import AdminModule  # noqa

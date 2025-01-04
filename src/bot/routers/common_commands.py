@@ -10,12 +10,6 @@ from services import user_service
 router = Router()
 
 
-# Глобальный словарь для кеша file_id
-MEDIA_CACHE = {}
-
-router = Router()
-
-
 @router.message(Command("start"))
 async def start_command_handler(
     message: Message, is_admin: bool, async_session: AsyncSession

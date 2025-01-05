@@ -4,7 +4,7 @@ from aiogram import Bot, Dispatcher
 from aiogram.client.bot import DefaultBotProperties
 from aiogram.enums import ParseMode
 from aiogram.fsm.storage.redis import Redis, RedisStorage
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.ext.asyncio import async_sessionmaker
 
 from api_client import ApiClientManager
 from bot.bot_utils import set_default_commands
@@ -23,7 +23,7 @@ class BotManager(BaseModuleManager):
         self,
         bot_config: BotConfig,
         redis_config: RedisConfig,
-        async_session: AsyncSession,
+        async_session: async_sessionmaker,
         api_client: ApiClientManager,
     ):
         self.bot_config = bot_config

@@ -78,7 +78,9 @@ class BotManager(BaseModuleManager):
         Запуск бота.
         """
         if self.dispatcher:
-            self._polling_task = await self.dispatcher.start_polling(self.bot)
+            self._polling_task = asyncio.create_task(
+                self.dispatcher.start_polling(self.bot)
+            )
 
     async def stop(self):
         """

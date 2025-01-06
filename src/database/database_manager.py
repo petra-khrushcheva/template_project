@@ -40,7 +40,7 @@ class DatabaseManager(BaseModuleManager):
             )
         )
 
-    async def stop(self):
+    async def shutdown(self):
         """
         Закрывает соединения с базой данных.
         """

@@ -13,6 +13,6 @@ class BaseModuleManager(ABC):
         pass
 
     @abstractmethod
-    async def stop(self):
+    async def shutdown(self):
         """Остановка модуля."""
         pass

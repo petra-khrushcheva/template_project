@@ -79,10 +79,10 @@ class BotManager(BaseModuleManager):
         """
         if self.dispatcher:
             self._polling_task = asyncio.create_task(
-                self.dispatcher.start_polling(self.bot)
+                self.dispatcher.start_polling(self.bot, handle_signals=False)
             )
 
-    async def stop(self):
+    async def shutdown(self):
         """
         Остановка бота и диспетчера.
         """
@@ -93,7 +93,7 @@ class BotManager(BaseModuleManager):
             except asyncio.CancelledError:
                 pass
 
-        if self.bot:
+        if self.bot and self.bot.session:
             await self.bot.session.close()
 
         if self.redis:

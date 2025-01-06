@@ -61,6 +61,6 @@ class AdminManager(BaseModuleManager):
         """Админка не требует запуска."""
         pass
 
-    async def stop(self):
+    async def shutdown(self):
         """Админка не требует остановки."""
         pass

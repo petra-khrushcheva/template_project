@@ -32,7 +32,7 @@ class ApiClientManager(BaseModuleManager):
         """
         pass
 
-    async def stop(self):
+    async def shutdown(self):
         """
         Закрывает сессию.
         """

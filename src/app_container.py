@@ -13,7 +13,22 @@ from server import ServerManager
 
 
 class AppContainer:
+    """
+    Контейнер для управления жизненным циклом приложения.
+
+    Этот класс отвечает за конфигурацию, запуск и завершение
+    всех модулей приложения.
+    Он координирует взаимодействие между модулями,
+    управляет обработкой сигналов
+    и обеспечивает корректное завершение работы приложения.
+    """
+
     def __init__(self, settings: Settings):
+        """
+        Инициализирует контейнер приложения.
+
+        :param settings: Конфигурация приложения.
+        """
 
         self.settings = settings
 
@@ -27,9 +42,11 @@ class AppContainer:
 
         self.modules: list[BaseModuleManager] = []
 
-        self.stop_event = (
-            asyncio.Event()
-        )  # Событие для обработки сигналов SIGTERM и SIGINT
+        # Событие для обработки сигналов SIGTERM и SIGINT
+        self.stop_event = asyncio.Event()
+
+        # Флаг для предотвращения повторного вызова shutdown
+        self.shutdown_called = False
 
     async def setup_module(
         self, module_class: BaseModuleManager, *args, **kwargs
@@ -51,6 +68,12 @@ class AppContainer:
     async def configure(self) -> None:
         """
         Конфигурирует все модули приложения.
+
+        Этот метод создаёт и настраивает менеджеры модулей,
+        включая базу данных, Telegram-бот, административный интерфейс,
+        API, планировщик задач и сервер.
+
+        После выполнения этого метода приложение готово к запуску.
         """
 
         self.database_manager = await self.setup_module(
@@ -103,6 +126,10 @@ class AppContainer:
         """
         Настраивает обработчики сигналов SIGTERM и SIGINT
         для корректного завершения приложения.
+
+        Обработчики сигналов устанавливаются для текущего event loop.
+        При получении сигнала вызывается метод self.stop_event.set(),
+        чтобы инициировать процесс завершения приложения.
         """
         loop = asyncio.get_running_loop()
 
@@ -115,6 +142,10 @@ class AppContainer:
     async def start(self) -> None:
         """
         Запускает все модули приложения.
+
+        Этот метод выполняет запуск всех зарегистрированных модулей
+        и ожидает получения сигнала завершения (SIGTERM или SIGINT).
+        После получения сигнала приложение переходит к корректному завершению.
         """
         for module in self.modules:
             await module.start()
@@ -126,6 +157,12 @@ class AppContainer:
     async def shutdown(self) -> None:
         """
         Корректно завершает работу всех модулей приложения.
+
+        Этот метод завершает работу всех модулей в обратном порядке их запуска.
         """
+        if self.shutdown_called:
+            return
+
+        self.shutdown_called = True
         for module in reversed(self.modules):
             await module.shutdown()

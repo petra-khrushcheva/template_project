@@ -1,26 +1,21 @@
+import asyncio
 import logging
 
-import uvicorn
-
-from app_manager import configure_app
+from app_container import AppContainer
 from config import settings
+from core import configure_logging
 
 
-def main():
-    logging.info("App is starting!")
+async def main():
+    configure_logging(settings.log_config)
+    app_container = AppContainer(settings)
     try:
-        app = configure_app()
-        uvicorn.run(
-            app,
-            host="0.0.0.0",
-            port=8000,
-            forwarded_allow_ips=settings.forwarded_allow_ips,
-        )
-    except (KeyboardInterrupt, SystemExit):
-        logging.info("App stopped!")
-    except Exception:
-        logging.exception()
+        await app_container.configure()
+        await app_container.start()
+    finally:
+        await app_container.shutdown()
+        logging.info("App successfully shut down.")
 
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())

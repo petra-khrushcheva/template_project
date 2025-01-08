@@ -44,7 +44,8 @@ class DatabaseManager(BaseModuleManager):
         """
         Закрывает соединения с базой данных.
         """
-        await self.engine.dispose()
+        if self.engine:
+            await self.engine.dispose()
 
     async def session_getter(self) -> AsyncGenerator[AsyncSession, None]:
         """

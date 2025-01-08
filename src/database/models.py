@@ -13,8 +13,7 @@ from database.mixins import (
 
 class User(BigIntPrimaryKeyMixin, LastActiveMixin, Base):
     """
-    Пользователи, взаимодействующие с функционалом бота
-    в личных сообщениях или в группах.
+    Пользователи приложения.
 
     Поля класса:
     - `id`: Уникальный идентификатор юзера.

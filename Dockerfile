@@ -7,3 +7,4 @@ RUN pip3 install --no-cache-dir --upgrade -r /app/requirements.txt
 COPY ./alembic.ini /app/
 COPY ./alembic /app/alembic/
 COPY ./src /app/src/
+CMD ["bash", "-c", "alembic upgrade head && python src/main.py"]

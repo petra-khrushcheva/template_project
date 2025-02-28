@@ -2,11 +2,12 @@ import asyncio
 import logging
 
 from app_container import AppContainer
-from config import settings
+from config import Settings
 from core import configure_logging
 
 
 async def main():
+    settings = Settings()
     configure_logging(settings.log_config)
     app_container = AppContainer(settings)
     try:

@@ -4,14 +4,10 @@ from sqlalchemy import Boolean, ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from database.basemodels import Base
-from database.mixins import (
-    BigIntPrimaryKeyMixin,
-    IntPrimaryKeyMixin,
-    LastActiveMixin,
-)
+from database.mixins import BigIntPrimaryKeyMixin, IntPrimaryKeyMixin
 
 
-class User(BigIntPrimaryKeyMixin, LastActiveMixin, Base):
+class User(BigIntPrimaryKeyMixin, Base):
     """
     Пользователи приложения.
 
@@ -57,6 +53,9 @@ class Item(IntPrimaryKeyMixin, Base):
 
     title: Mapped[str] = mapped_column(String(128), nullable=False)
     item_type: Mapped[ItemType] = mapped_column(nullable=False)
+    # status: Mapped[OrderStatus] = mapped_column(
+    #     default=OrderStatus.pending, server_default=OrderStatus.pending.value
+    # )
     user_id: Mapped[int] = mapped_column(
         ForeignKey("users.id"), nullable=False
     )

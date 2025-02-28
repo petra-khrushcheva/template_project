@@ -6,10 +6,19 @@ from sqlalchemy.orm import Mapped, mapped_column
 
 
 class TimestampMixin:
-    """Добавляет поле created_at для отслеживания времени создания записи."""
+    """
+    Миксин для добавления временных меток:
+    - created_at: время создания записи (UTC).
+    - updated_at: время последнего обновления записи (UTC).
+    """
 
     created_at: Mapped[datetime.datetime] = mapped_column(
         DateTime(timezone=True), server_default=text("TIMEZONE('utc', now())")
+    )
+    updated_at: Mapped[datetime.datetime] = mapped_column(
+        DateTime(timezone=True),
+        server_default=text("TIMEZONE('utc', now())"),
+        server_onupdate=text("TIMEZONE('utc', now())"),
     )
 
 
@@ -40,14 +49,4 @@ class UUIDPrimaryKeyMixin(TimestampMixin, IsActiveMixin):
         primary_key=True,
         default=uuid.uuid4,
         server_default=text("gen_random_uuid()"),
-    )
-
-
-class LastActiveMixin:
-    """Добавляет поле last_active для отслеживания последней активности."""
-
-    last_active: Mapped[datetime.datetime] = mapped_column(
-        DateTime(timezone=True),
-        server_default=text("TIMEZONE('utc', now())"),
-        onupdate=text("TIMEZONE('utc', now())"),
     )

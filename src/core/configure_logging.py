@@ -8,7 +8,6 @@ from aiogram import Bot
 from aiogram.client.bot import DefaultBotProperties
 from aiogram.enums import ParseMode
 from aiogram.types import BufferedInputFile
-
 from config import LogConfig
 
 
@@ -39,6 +38,7 @@ class TelegramHandler(logging.Handler):
                 else:
                     await self.bot.send_message(chat_id=user_id, text=message)
             except Exception:
+                # здесь нужно в случае, когда юзер (мейнтейнер) удалился делать pass
                 logging.exception(
                     f"Failed to send log message to user {user_id}"
                 )

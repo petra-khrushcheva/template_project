@@ -4,9 +4,11 @@ from aiogram import Bot, Dispatcher
 from aiogram.client.bot import DefaultBotProperties
 from aiogram.enums import ParseMode
 from aiogram.fsm.storage.redis import Redis, RedisStorage
+from api_client import ApiClientManager
+from config import BotConfig, RedisConfig
+from core import BaseModuleManager
 from sqlalchemy.ext.asyncio import async_sessionmaker
 
-from api_client import ApiClientManager
 from bot.bot_utils import set_default_commands
 from bot.middleware import (  # MediaGroupMiddleware,
     ApiClientMiddleware,
@@ -14,8 +16,6 @@ from bot.middleware import (  # MediaGroupMiddleware,
     IsAdminMiddleware,
 )
 from bot.routers import router
-from config import BotConfig, RedisConfig
-from core import BaseModuleManager
 
 
 class BotManager(BaseModuleManager):
@@ -30,13 +30,14 @@ class BotManager(BaseModuleManager):
         self.redis_config = redis_config
         self.async_session = async_session
         self.api_client = api_client
-        self.redis: Redis | None = None
 
         self.bot: Bot = Bot(
             token=self.bot_config.bot_token.get_secret_value(),
             default=DefaultBotProperties(parse_mode=ParseMode.HTML),
         )
-        self.dispatcher: Dispatcher = Dispatcher()
+        self.redis: Redis | None = None
+        self.storage: RedisStorage | None = None
+        self.dispatcher: Dispatcher | None = None
         self._polling_task: asyncio.Task | None = None
 
     async def configure(self):
@@ -51,13 +52,13 @@ class BotManager(BaseModuleManager):
             port=self.redis_config.redis_port,
             db=self.redis_config.redis_db,
         )
-        storage = RedisStorage(
+        self.storage = RedisStorage(
             redis=self.redis,
             state_ttl=self.redis_config.state_ttl,
             data_ttl=self.redis_config.data_ttl,
         )
 
-        self.dispatcher.storage = storage
+        self.dispatcher = Dispatcher(storage=self.storage)
         self.dispatcher.include_router(router)
 
         await self.configure_middleware()
